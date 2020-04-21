@@ -14,22 +14,30 @@ if (isset($_GET["file"])) {
   fclose($myfile);
 }
 if (isset($_GET["download"])) {
-  $source = $_GET['download'];
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $source);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_SSLVERSION,3);
-  data = curl_exec ($ch);
-  $error = curl_error($ch); 
-  curl_close ($ch);
-  echo $data;
-  $ch = curl_init($download);
-  curl_setopt($ch, CURLOPT_FILE, $data);
-  curl_exec($ch);
-  $st_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-  if($st_code == 200)
-    echo 'File downloaded successfully!';
-  else
-    echo 'Error downloading file!';
+      $file = urldecode($file); // Decode URL-encoded string
+
+    /* Test whether the file name contains illegal characters
+    such as "../" using the regular expression */
+    if(preg_match('/^[^.][-a-z0-9_.]+[a-z]$/i', $file)){
+        $filepath = $file;
+
+        // Process download
+        if(file_exists($filepath)) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($filepath));
+            flush(); // Flush system output buffer
+            readfile($filepath);
+            die();
+        } else {
+            http_response_code(404);
+	        die();
+        }
+    } else {
+        die("Invalid file name!");
+    }
 ?>
