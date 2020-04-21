@@ -1,4 +1,5 @@
 <?php
+echo '<title>Kama Kepar Lib</title>'
 if (isset($_GET["echo"])) {
 $echo = $_GET['echo'];
 echo $echo;
